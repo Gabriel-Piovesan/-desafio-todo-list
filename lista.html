@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tarefas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Lista de Tarefas</h1>
+  </header>
+
+  <main>
+    <form id="form-tarefa">
+      <input
+        type="text"
+        id="input-tarefa"
+        placeholder="Digite uma tarefa..."
+        aria-label="Nova tarefa"
+        data-testid="input-tarefa"
+      >
+      <button type="submit" data-testid="botao-adicionar">Adicionar</button>
+    </form>
+
+    <p id="mensagem-erro"></p>
+
+    <ul id="lista-tarefas" data-testid="lista-tarefas">
+
+    </ul>
+  </main>
+
+<script>
+  const form = document.getElementById("form-tarefa");
+  const input = document.getElementById("input-tarefa");
+  const lista = document.getElementById("lista-tarefas");
+  const mensagemErro = document.getElementById("mensagem-erro");
+
+  carregarTarefas();
+  
+  form.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+  
+    const texto = input.value.trim();
+
+    if (texto === "") {
+      mensagemErro.textContent = "Digite uma tarefa antes de adicionar!";
+      return;
+    }
+  
+    mensagemErro.textContent = "";
+    adicionarTarefaNaTela(texto, false);
+    salvarTarefas();
+    input.value = "";
+  });
+  
+  function adicionarTarefaNaTela(texto, concluida) {
+    const item = document.createElement("li");
+  
+    const span = document.createElement("span");
+    span.textContent = texto;
+    if (concluida) {
+      span.classList.add("concluida");
+    }
+  
+    span.addEventListener("click", function () {
+      span.classList.toggle("concluida");
+      salvarTarefas();
+    });
+  
+    const botaoExcluir = document.createElement("button");
+    botaoExcluir.textContent = "Excluir";
+    botaoExcluir.classList.add("botao-excluir");
+  
+    botaoExcluir.addEventListener("click", function () {
+      item.remove();
+      salvarTarefas();
+    });
+  
+    item.appendChild(span);
+    item.appendChild(botaoExcluir);
+    lista.appendChild(item);
+  }
+  
+  function salvarTarefas() {
+    const tarefas = [];
+  
+    lista.querySelectorAll("li").forEach(function (item) {
+      const span = item.querySelector("span");
+      tarefas.push({
+        texto: span.textContent,
+        concluida: span.classList.contains("concluida")
+      });
+    });
+  
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+  }
+  
+  function carregarTarefas() {
+    const tarefasSalvas = localStorage.getItem("tarefas");
+  
+    if (tarefasSalvas) {
+      const tarefas = JSON.parse(tarefasSalvas);
+      tarefas.forEach(function (tarefa) {
+        adicionarTarefaNaTela(tarefa.texto, tarefa.concluida);
+      });
+    }
+  }</script> 
+</body>
+</html>
+
+
